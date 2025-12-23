@@ -25,21 +25,23 @@ const skip = () => {
 </script>
 
 <template>
-    <div class="fixed inset-0 bg-black/40 flex items-end justify-center">
-        <div class="bg-white w-full max-w-md rounded-t-xl p-4 space-y-4">
+    <div class="fixed inset-0 bg-black/80 flex items-center justify-center">
+        <div class="bg-gray-800 w-full max-w-md rounded-xl p-4 space-y-4">
             <h3 class="text-lg font-semibold">Permainan Selesai</h3>
 
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-gray-50">
                 Apakah Anda ingin mengunduh hasil permainan dalam bentuk PDF?
             </p>
 
             <div class="flex gap-2">
-                <button class="flex-1 py-2 rounded bg-gray-800" @click="skip">
+                <button class="flex-1 py-2 rounded bg-violet-700 text-white" @click="download">
+                    Unduh PDF
+                </button>
+                <button class="flex-1 py-2 rounded bg-gray-500 text-white" @click="skip">
                     Lewati
                 </button>
-
-                <button class="flex-1 bg-violet-700 text-white py-2 rounded" @click="download">
-                    Unduh PDF
+                <button class="flex-1 py-2 rounded bg-black text-white" @click="emit('close')">
+                    Batal
                 </button>
             </div>
         </div>

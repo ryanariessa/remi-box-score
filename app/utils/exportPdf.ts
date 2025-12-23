@@ -106,12 +106,11 @@ export function exportGameToPDF(game: Game) {
 
   autoTable(doc, {
     startY: 22,
-    head: [['Peringkat', 'Pemain', 'Total', 'Sesi Terakhir']],
+    head: [['Peringkat', 'Pemain', 'Total']],
     body: ranking.map((r, i) => [
       i + 1,
       r.name,
-      r.total,
-      r.lastScore
+      r.total
     ]),
     styles: {
       halign: 'center'
