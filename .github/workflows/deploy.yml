@@ -3,7 +3,7 @@ name: Deploy Nuxt to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - run: npm install
       - run: npm run build
