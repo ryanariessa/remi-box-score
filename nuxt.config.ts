@@ -1,19 +1,33 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
+  compatibilityDate: "2025-07-15",
   devtools: { enabled: false },
+  ssr: false,
+
+  app: {
+    baseURL: "/remi-box-score/",
+    buildAssetsDir: "assets",
+  },
+
+  nitro: {
+    preset: "github-pages",
+  },
+
+  typescript: {
+    strict: true,
+  },
 
   modules: [
     // '@nuxt/content',
-    '@nuxt/eslint',
-    '@nuxt/hints',
-    '@nuxt/fonts',
-    '@nuxt/image',
-    '@nuxt/scripts',
-    '@nuxtjs/color-mode',
-    '@pinia/nuxt',
-    '@nuxt/ui',
+    "@nuxt/eslint",
+    "@nuxt/hints",
+    "@nuxt/fonts",
+    "@nuxt/image",
+    "@nuxt/scripts",
+    "@nuxtjs/color-mode",
+    "@pinia/nuxt",
+    "@nuxt/ui",
   ],
 
-  css: ['~/assets/css/main.css'],
-})
+  css: ["~/assets/css/main.css"],
+});
