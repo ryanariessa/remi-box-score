@@ -4,13 +4,9 @@ import { useGameStore } from '~/stores/game'
 import { validateScore } from '~/utils/score'
 import type { Session } from '~/models/session'
 
-const props = defineProps<{
-  session: Session
-}>()
+const props = defineProps<{ session: Session }>()
 
-const emit = defineEmits<{
-  (e: 'close'): void
-}>()
+const emit = defineEmits<{ (e: 'close'): void }>()
 
 const gameStore = useGameStore()
 
@@ -32,7 +28,6 @@ const errors = computed(() => {
       result[playerId] = null
       continue
     }
-
     result[playerId] = validateScore(value)
   }
 
@@ -60,42 +55,35 @@ const submit = () => {
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div class="bg-gray-800 w-full max-w-md rounded-xl p-4 space-y-4">
-
-      <h3 class="font-semibold text-lg text-gray-100 text-center">
+  <!-- BACKDROP -->
+  <div class="fixed inset-0 z-50 flex items-center justify-center
+           bg-black/40 dark:bg-black/70">
+    <!-- MODAL -->
+    <div class="w-full max-w-md rounded-xl p-4 space-y-4
+             bg-white text-gray-900
+             dark:bg-zinc-900 dark:text-gray-100
+             shadow-xl">
+      <h3 class="text-lg font-semibold text-center">
         Edit Sesi {{ props.session.index }}
       </h3>
 
       <!-- INPUT LIST -->
       <div class="space-y-3">
-        <div
-          v-for="player in gameStore.players"
-          :key="player.id"
-          class="space-y-1"
-        >
+        <div v-for="player in gameStore.players" :key="player.id" class="space-y-1">
           <div class="flex items-center gap-2">
-            <span class="w-24 truncate text-gray-200">
+            <span class="w-24 truncate text-sm opacity-80">
               {{ player.name }}
             </span>
 
-            <input
-              type="number"
-              v-model.number="form[player.id]"
-              @input="touched[player.id] = true"
-              class="flex-1 border rounded p-2 text-right bg-gray-900 text-gray-100 transition"
-              :class="errors[player.id]
-                ? 'border-red-500 animate-shake'
-                : 'border-gray-600 focus:border-white'
-              "
-            />
+            <input type="number" v-model.number="form[player.id]" @input="touched[player.id] = true" class="flex-1 rounded border p-2 text-right transition
+                     bg-white border-gray-300 text-gray-900
+                     focus:border-gray-500 focus:outline-none
+                     dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-100
+                     dark:focus:border-gray-300" :class="errors[player.id] && 'border-red-500 animate-shake'" />
           </div>
 
           <!-- ERROR -->
-          <p
-            v-if="errors[player.id]"
-            class="text-xs text-red-400 pl-[6.5rem]"
-          >
+          <p v-if="errors[player.id]" class="text-xs text-red-600 dark:text-red-400 pl-[6.5rem]">
             {{ errors[player.id] }}
           </p>
         </div>
@@ -103,22 +91,19 @@ const submit = () => {
 
       <!-- ACTION -->
       <div class="flex gap-2 pt-2">
-        <button
-          class="flex-1 bg-violet-700 text-white rounded py-2 disabled:opacity-40"
-          :disabled="!isValid"
-          @click="submit"
-        >
+        <button :disabled="!isValid" @click="submit" class="flex-1 rounded py-2 font-semibold
+                 bg-violet-600 text-white
+                 hover:bg-violet-700
+                 disabled:opacity-40 disabled:cursor-not-allowed">
           Simpan
         </button>
 
-        <button
-          class="flex-1 rounded bg-black py-2 text-gray-200"
-          @click="$emit('close')"
-        >
+        <button @click="$emit('close')" class="flex-1 py-2 rounded
+               border border-zinc-300 dark:border-zinc-700
+               text-zinc-700 dark:text-zinc-300">
           Batal
         </button>
       </div>
-
     </div>
   </div>
 </template>
@@ -126,12 +111,27 @@ const submit = () => {
 <style scoped>
 /* 🔥 Shake animation */
 @keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  50% { transform: translateX(4px); }
-  75% { transform: translateX(-4px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  50% {
+    transform: translateX(4px);
+  }
+
+  75% {
+    transform: translateX(-4px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
+
 .animate-shake {
   animation: shake 0.2s ease-in-out;
 }

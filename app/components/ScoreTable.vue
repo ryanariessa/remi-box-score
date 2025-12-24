@@ -9,103 +9,142 @@ const gameStore = useGameStore()
 const sessions = computed(() => gameStore.sessions)
 const players = computed(() => gameStore.players)
 
+/* ================= HELPERS ================= */
 const getScore = (playerId: string, sessionId: string) => {
-    const session = gameStore.sessions.find(s => s.id === sessionId)
-    return session?.scores.find(s => s.playerId === playerId)?.score ?? ''
+  const session = gameStore.sessions.find(s => s.id === sessionId)
+  return session?.scores.find(s => s.playerId === playerId)?.score ?? ''
 }
 
-const getTotalScores = () => {
-    return players.value.map(player =>
-        gameStore.totalScoreByPlayer(player.id)
-    )
+const getSessionStats = (sessionId: string) => {
+  const session = gameStore.sessions.find(s => s.id === sessionId)
+  if (!session || session.scores.length === 0) return null
+
+  const values = session.scores.map(s => s.score)
+  return {
+    max: Math.max(...values),
+    min: Math.min(...values)
+  }
 }
 
-const getTotalScoreClass = (playerId: string) => {
-    const totals = getTotalScores()
-    if (totals.length === 0) return 'text-gray-300'
+const getTotalStats = computed(() => {
+  if (players.value.length === 0) return null
 
-    const max = Math.max(...totals)
-    const min = Math.min(...totals)
+  const totals = players.value.map(p =>
+    gameStore.totalScoreByPlayer(p.id)
+  )
 
-    const playerTotal = gameStore.totalScoreByPlayer(playerId)
+  return {
+    max: Math.max(...totals),
+    min: Math.min(...totals)
+  }
+})
 
-    if (playerTotal === max) return 'text-green-300 font-bold'
-    if (playerTotal === min) return 'text-red-300 font-bold'
+const scoreClass = (
+  playerId: string,
+  sessionId: string
+) => {
+  const session = gameStore.sessions.find(s => s.id === sessionId)
+  if (!session) return ''
 
-    return 'text-gray-300 font-bold'
+  const stat = getSessionStats(sessionId)
+  const score = session.scores.find(s => s.playerId === playerId)?.score
+  if (score === undefined || !stat) return ''
+
+  if (score === stat.max) return 'text-green-500 font-semibold'
+  if (score === stat.min) return 'text-red-500 font-semibold'
+
+  return 'text-gray-700 dark:text-gray-300'
 }
 
-const getScoreClass = (playerId: string, sessionId: string) => {
-    const session = gameStore.sessions.find(s => s.id === sessionId)
-    if (!session) return 'text-gray-300'
+const totalClass = (playerId: string) => {
+  const stat = getTotalStats.value
+  if (!stat) return ''
 
-    const scores = session.scores.map(s => s.score)
-    if (scores.length === 0) return 'text-gray-300'
+  const total = gameStore.totalScoreByPlayer(playerId)
 
-    const max = Math.max(...scores)
-    const min = Math.min(...scores)
+  if (total === stat.max) return 'text-green-600 dark:text-green-400 font-bold'
+  if (total === stat.min) return 'text-red-600 dark:text-red-400 font-bold'
 
-    const playerScore =
-        session.scores.find(s => s.playerId === playerId)?.score
-
-    if (playerScore === undefined) return 'text-gray-300'
-
-    if (playerScore === max) return 'text-green-300 font-semibold'
-    if (playerScore === min) return 'text-red-300 font-semibold'
-
-    return 'text-gray-300'
+  return 'text-gray-800 dark:text-gray-200 font-semibold'
 }
 
+/* ================= EMITS ================= */
 defineEmits<{
-    (e: 'edit', session: Session): void
-    (e: 'replace', player: Player): void
+  (e: 'edit', session: Session): void
+  (e: 'replace', player: Player): void
 }>()
 </script>
 
 <template>
-    <div class="overflow-x-auto border rounded">
-        <table class="min-w-full text-sm border-collapse">
-            <thead>
-                <!-- 🔹 HEADER -->
-                <tr class="bg-gray-800">
-                    <th class="p-2 text-left sticky left-0 text-gray-50 z-10">
-                        Pemain
-                    </th>
+  <div class="overflow-x-auto rounded-lg border border-gray-300 dark:border-gray-700">
+    <table class="min-w-full text-sm border-collapse">
+      <!-- ================= HEADER ================= -->
+      <thead class="bg-gray-200 dark:bg-gray-800">
+        <tr>
+          <th
+            class="p-2 text-left sticky left-0 z-10 bg-gray-200 dark:bg-gray-800"
+          >
+            Pemain
+          </th>
 
-                    <th v-for="player in players" :key="player.id">
-                        <button class="p-2 text-center text-gray-50 font-semibold underline" @click="$emit('replace', player)">
-                            {{ player.name }}
-                        </button>
-                    </th>
-                </tr>
-            </thead>
+          <th
+            v-for="player in players"
+            :key="player.id"
+            class="p-2 text-center"
+          >
+            <button
+              class="font-semibold underline text-gray-800 dark:text-gray-100 hover:opacity-80"
+              @click="$emit('replace', player)"
+            >
+              {{ player.name }}
+            </button>
+          </th>
+        </tr>
+      </thead>
 
-            <tbody>
-                <!-- 🔹 BARIS SESI -->
-                <tr v-for="session in sessions" :key="session.id">
-                    <td class="p-2 sticky left-0 bg-gray-800 text-gray-50 cursor-pointer underline font-medium"
-                        @click="$emit('edit', session)">
-                        Sesi {{ session.index }}
-                    </td>
+      <!-- ================= BODY ================= -->
+      <tbody>
+        <!-- 🔹 BARIS SESI -->
+        <tr
+          v-for="session in sessions"
+          :key="session.id"
+          class="border-t border-gray-200 dark:border-gray-700"
+        >
+          <td
+            class="p-2 sticky left-0 bg-gray-100 dark:bg-gray-900 font-medium underline cursor-pointer"
+            @click="$emit('edit', session)"
+          >
+            Sesi {{ session.index }}
+          </td>
 
-                    <td v-for="player in players" :key="player.id" class="p-2 text-center"
-                        :class="getScoreClass(player.id, session.id)">
-                        {{ getScore(player.id, session.id) }}
-                    </td>
-                </tr>
+          <td
+            v-for="player in players"
+            :key="player.id"
+            class="p-2 text-center transition"
+            :class="scoreClass(player.id, session.id)"
+          >
+            {{ getScore(player.id, session.id) }}
+          </td>
+        </tr>
 
-                <!-- 🔹 BARIS TOTAL -->
-                <tr class="bg-gray-800 font-semibold">
-                    <td class="p-2 sticky left-0 bg-gray-750 text-gray-50">
-                        Total
-                    </td>
+        <!-- 🔹 BARIS TOTAL -->
+        <tr class="border-t-2 border-gray-400 dark:border-gray-600">
+          <td
+            class="p-2 sticky left-0 bg-gray-300 dark:bg-gray-800 font-bold"
+          >
+            Total
+          </td>
 
-                    <td v-for="player in players" :key="player.id" class="p-2 text-center z-10"
-                        :class="getTotalScoreClass(player.id)">
-                        {{ gameStore.totalScoreByPlayer(player.id) }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+          <td
+            v-for="player in players"
+            :key="player.id"
+            class="p-2 text-center transition"
+            :class="totalClass(player.id)"
+          >
+            {{ gameStore.totalScoreByPlayer(player.id) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>

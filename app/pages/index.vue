@@ -18,14 +18,12 @@ const touched = ref<boolean[]>([false, false, false, false])
 /* ===== ACTIONS ===== */
 const addPlayerAfter = (index: number) => {
   if (playerNames.value.length >= 5) return
-
   playerNames.value.splice(index + 1, 0, '')
   touched.value.splice(index + 1, 0, false)
 }
 
 const removePlayer = (index: number) => {
   if (playerNames.value.length <= 4) return
-
   playerNames.value.splice(index, 1)
   touched.value.splice(index, 1)
 }
@@ -33,9 +31,7 @@ const removePlayer = (index: number) => {
 /* ===== VALIDATION ===== */
 const validate = () => {
   const map: Record<number, string | null> = {}
-  const normalized = playerNames.value.map(n =>
-    n.trim().toLowerCase()
-  )
+  const normalized = playerNames.value.map(n => n.trim().toLowerCase())
 
   playerNames.value.forEach((name, index) => {
     if (!touched.value[index]) {
@@ -62,7 +58,6 @@ const validate = () => {
   errors.value = map
 }
 
-/* ===== WATCHERS ===== */
 watch(playerNames, validate, { deep: true })
 
 /* ===== COMPUTED ===== */
@@ -73,7 +68,7 @@ const canStart = computed(() =>
   playerNames.value.every(name => name.trim())
 )
 
-/* ===== START GAME ===== */
+/* ===== START ===== */
 const startGame = () => {
   if (!canStart.value) return
   gameStore.startGame(playerNames.value)
@@ -82,10 +77,10 @@ const startGame = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4 bg-black">
-    <div class="w-full max-w-md space-y-6">
+  <div class="flex items-center justify-center p-4">
+    <div class="w-full max-w-md space-y-6 bg-card p-6 rounded-xl shadow">
 
-      <h1 class="text-2xl font-bold text-center text-gray-50">
+      <h1 class="text-2xl font-bold text-center">
         Remi Box Score
       </h1>
 
@@ -93,82 +88,78 @@ const startGame = () => {
       <transition-group name="list" tag="div" class="space-y-3">
         <div v-for="(name, index) in playerNames" :key="index" class="space-y-1">
           <div class="flex items-center gap-2">
-            <input v-model="playerNames[index]" @input="touched[index] = true" type="text" placeholder="Nama Pemain"
+            <input
+              v-model="playerNames[index]"
+              @input="touched[index] = true"
+              type="text"
+              placeholder="Nama Pemain"
               :class="[
-                'flex-1 border rounded p-2 bg-zinc-900 text-gray-50 transition',
+                'flex-1 rounded p-2 transition border bg-background',
                 errors[index]
-                  ? 'border-red-500 animate-shake'
-                  : 'border-zinc-700 focus:border-white'
-              ]" />
+                  ? 'border-destructive animate-shake'
+                  : 'border-input focus:border-ring'
+              ]"
+            />
 
             <!-- ➕ TAMBAH -->
-            <button v-if="playerNames.length < 5" @click="addPlayerAfter(index)"
-              class="px-3 py-2 rounded bg-green-600 text-white">
+            <button
+              v-if="playerNames.length < 5"
+              @click="addPlayerAfter(index)"
+              class="px-3 py-2 rounded bg-primary text-primary-foreground"
+            >
               +
             </button>
 
             <!-- 🗑 HAPUS -->
-            <button v-else @click="removePlayer(index)" :disabled="playerNames.length <= 4"
-              class="px-3 py-2 rounded bg-red-600 text-white disabled:opacity-40">
+            <button
+              v-else
+              @click="removePlayer(index)"
+              class="px-3 py-2 rounded bg-destructive text-destructive-foreground"
+            >
               ×
             </button>
           </div>
 
-          <!-- ERROR -->
-          <p v-if="errors[index]" class="text-xs text-red-400 pl-1">
+          <p v-if="errors[index]" class="text-xs text-destructive">
             {{ errors[index] }}
           </p>
         </div>
       </transition-group>
 
       <!-- START -->
-      <button :disabled="!canStart" @click="startGame"
-        class="w-full bg-white text-black py-2 rounded font-semibold disabled:opacity-40 transition">
+      <button
+        :disabled="!canStart"
+        @click="startGame"
+        class="w-full py-2 rounded font-semibold
+               bg-primary text-primary-foreground
+               disabled:opacity-40 transition"
+      >
         Mulai Game
       </button>
 
-      <p class="text-xs text-center text-gray-400">
+      <p class="text-xs text-center text-muted-foreground">
         Minimal 4 pemain, maksimal 5 pemain
       </p>
-
     </div>
   </div>
 </template>
 
 <style scoped>
-/* 🔥 Shake animation */
 @keyframes shake {
-  0% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-4px);
-  }
-
-  50% {
-    transform: translateX(4px);
-  }
-
-  75% {
-    transform: translateX(-4px);
-  }
-
-  100% {
-    transform: translateX(0);
-  }
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
 }
-
 .animate-shake {
   animation: shake 0.2s ease-in-out;
 }
 
-/* ✨ List transition */
 .list-enter-active,
 .list-leave-active {
   transition: all 0.25s ease;
 }
-
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
